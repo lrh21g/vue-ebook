@@ -22,13 +22,17 @@
 
 + 配置注释
 + 常用命令
+  
   `start nginx`: 启动 Nginx 服务
-  `nginx -s stop`: 停止 Nginx 服务
-  `nginx -s reload`: 重新加载配置文件
-  `nginx -s quit`: 退出 Nginx
 
+  `nginx -s stop`: 停止 Nginx 服务
+
+  `nginx -s reload`: 重新加载配置文件
+
+  `nginx -s quit`: 退出 Nginx
 
 ## 4. 其他
 
 + 字体css样式
+  
   生成样式网址：`font.googleapis.com`
