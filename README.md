@@ -1,24 +1,11 @@
 # vue-ebook
 
-## Project setup
-```
-npm install
-```
+## 2. 如何运行
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
++ 克隆代码： `git clone https://gitee.com/VueToLRH/vue-ebook.git`
++ 安装相关依赖：`npm install` (或使用淘宝镜像：`cnpm install`)
++ 运行项目：`npm run serve`
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## 字体css样式
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+生成样式网址：`font.googleapis.com`
