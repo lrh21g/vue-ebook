@@ -71,10 +71,24 @@ export const ebookMixin = {
       'setIsBookmark',
       'setSpeakingIconBottom'
     ]),
-    // 隐藏阅读器菜单
+    // 隐藏阅读器设置菜单
     hideMenuVisible () {
-      this.setMenuVisible(false)
+      this.setMenuVisible(false) // 隐藏阅读器设置菜单
+      this.setSettingVisible(-1) // 隐藏阅读器设置面板（-1:不显示，0:字号，1:主题，2:进度，3:目录）
+      this.setFontFamilyVisible(false) // 隐藏字体设置面板
     },
+    // 显示/隐藏 头部和设置菜单
+    toggleMenuVisible () {
+      if (this.menuVisible) {
+        this.setSettingVisible(-1) // 隐藏阅读器设置面板（-1:不显示，0:字号，1:主题，2:进度，3:目录）
+        this.setFontFamilyVisible(false) // 隐藏字体设置面板
+      }
+      this.setMenuVisible(!this.menuVisible) // 设置阅读器设置菜单的 显示/隐藏
+    },
+    // // 隐藏阅读器菜单
+    // hideMenuVisible () {
+    //   this.setMenuVisible(false)
+    // },
     // 显示阅读器设置：-1:不显示，0:字号，1:主题，2:进度，3:目录
     showSetting (key) {
       this.setSettingVisible(key)
@@ -116,8 +130,24 @@ export const ebookMixin = {
         Storage.saveTheme(this.fileName, theme) // 缓存对应电子书的主题
       })
     },
+    // 注册主题
+    registerTheme () {
+      this.themeList.forEach(theme => {
+        this.currentBook.rendition.themes.register(theme.name, theme.style)
+      })
+    },
     switchTheme () {
-      this.currentBook.rendition.themes.fontSize(this.defaultFontSize)
+      // 设置字体
+      const rules = this.themeList.filter(theme => theme.name === this.defaultTheme)[0]
+      if (this.defaultFontFamily && this.defaultFontFamily !== 'Default') {
+        rules.style.body['font-family'] = `${this.defaultFontFamily}!important`
+      } else {
+        rules.style.body['font-family'] = `Times New Roman!important`
+      }
+      this.registerTheme()
+      this.currentBook.rendition.themes.select(this.defaultTheme) // 设置阅读器主题
+      this.currentBook.rendition.themes.fontSize(this.defaultFontSize) // 设置阅读器字体大小
+      this.setGlobalTheme(this.defaultTheme) // 设置全局主题
     },
     // 设置全局主题：通过引入css，来修改全局样式（在设置新的全局样式时，先移除之前的样式）
     setGlobalTheme (theme) {
@@ -160,63 +190,48 @@ export const ebookMixin = {
       }
     },
     // 渲染书籍
-    display (target, cb) {
+    display (target, highlight = false) {
       if (target) {
         this.currentBook.rendition.display(target).then(() => {
-          // if (highlight) {
-          //   if (target.startsWith('epubcfi')) {
-          //     this.currentBook.getRange(target).then(range => {
-          //       this.currentBook.rendition.annotations.highlight(target, {}, (e) => {
-          //       })
-          //     })
-          //   }
-          // }
+          // 高亮文本
+          if (highlight) {
+            if (target.startsWith('epubcfi')) {
+              this.currentBook.getRange(target).then(range => {
+                this.currentBook.rendition.annotations.highlight(target, {}, (e) => {
+                })
+              })
+            }
+          }
           this.refreshLocation()
-          if (cb) cb()
         })
       } else {
         this.currentBook.rendition.display().then(() => {
           this.refreshLocation()
-          if (cb) cb()
         })
       }
-      // this.hideMenuVisible()
+      this.hideMenuVisible()
     },
     // 更新电子书位置
     refreshLocation () {
       const currentLocation = this.currentBook.rendition.currentLocation() // 获取当前电子书位置
-      const startCfi = currentLocation.start.cfi // 获取电子书位置的开始cfi
-      const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi) // 获取cif所在EpubCFI中的百分比
-      this.setProgress(Math.floor(progress * 100)) // 设置阅读进度
-      this.setSection(currentLocation.start.index) // 设置章节
-      Storage.saveLocation(this.fileName, startCfi) // 缓存对应电子书的位置
-      // const currentLocation = this.currentBook.rendition.currentLocation()
-      // if (currentLocation.start && currentLocation.start.index) {
-      //   this.setSection(currentLocation.start.index)
-      //   const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi)
-      //   this.setProgress(Math.floor(progress * 100))
-      //   if (this.pagelist) {
-      //     if (currentLocation.start.location <= 0) {
-      //       this.setPaginate('')
-      //     } else {
-      //       this.setPaginate(currentLocation.start.location + ' / ' + this.pagelist.length)
-      //     }
-      //   } else {
-      //     this.setPaginate('')
-      //   }
-      //   const cfistart = currentLocation.start.cfi
-      //   const bookmark = Storage.getBookmark(this.fileName)
-      //   if (bookmark) {
-      //     if (bookmark.some(item => item.cfi === cfistart)) {
-      //       this.setIsBookmark(true)
-      //     } else {
-      //       this.setIsBookmark(false)
-      //     }
-      //   } else {
-      //     this.setIsBookmark(false)
-      //   }
-      //   Storage.saveLocation(this.fileName, cfistart)
-      // }
+      if (currentLocation.start && currentLocation.start.index) {
+        this.setSection(currentLocation.start.index) // 设置章节
+        const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi) // 获取cif所在EpubCFI中的百分比
+        this.setProgress(Math.floor(progress * 100)) // 设置阅读进度
+        const cfistart = currentLocation.start.cfi // 获取电子书位置的开始cfi
+        const bookmark = Storage.getBookmark(this.fileName) // 获取对应电子书缓存中的书签
+        // 设置是否显示书签标识
+        if (bookmark) {
+          if (bookmark.some(item => item.cfi === cfistart)) {
+            this.setIsBookmark(true)
+          } else {
+            this.setIsBookmark(false)
+          }
+        } else {
+          this.setIsBookmark(false)
+        }
+        Storage.saveLocation(this.fileName, cfistart) // 缓存对应电子书的位置
+      }
     },
     getReadTime () {
       return this.$t('book.haveRead').replace('$1', getReadTimeByMinute(this.fileName))

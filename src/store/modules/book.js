@@ -14,13 +14,13 @@ const book = {
     section: 0, // 章节
     isPaginating: true,
     currentBook: null, // new Epub() 全局对象
-    navigation: null,
-    cover: null,
-    metadata: null,
+    navigation: null, // 目录导航
+    cover: null, // 电子书封面
+    metadata: null, // 电子书标题和作者信息信息
     paginate: '',
     pagelist: null,
-    offsetY: 0,
-    isBookmark: null,
+    offsetY: 0, // 纵向Y轴偏移量
+    isBookmark: null, // 当前页是否为书签页，true为显示书签标识，false为不显示
     speakingIconBottom: realPx(58)
   },
   mutations: {

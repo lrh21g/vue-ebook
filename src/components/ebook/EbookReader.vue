@@ -1,6 +1,19 @@
 <template>
   <div class="ebook-reader">
-    <div id="read"></div>
+    <!-- Epub书签功能需要通过蒙版实现 -->
+    <!-- 原因：rendition对象，无法绑定 touchmove 事件 -->
+    <!-- 修饰符 .left --- 左键点击 -->
+    <div class="ebook-reader-mask"
+      @touchmove="move"
+      @touchend="moveEnd"
+      @mousedown.left="onMouseEnter"
+      @mousemove.left="onMouseMove"
+      @mouseup.left="onMouseEnd"
+      @click="onMaskClick"></div>
+    <div class="read-wrapper">
+      <div id="read"></div>
+    </div>
+    <!-- <div id="read"></div> -->
   </div>
 </template>
 
@@ -22,10 +35,83 @@ export default {
       })
   },
   methods: {
+    // 蒙版 touchmove 事件：当触点在触控平面上移动时触发touchmove事件
+    move (e) {
+      let offsetY = 0
+      if (this.firstOffsetY) {
+        offsetY = e.changedTouches[0].clientY - this.firstOffsetY
+        this.setOffsetY(offsetY)
+      } else {
+        this.firstOffsetY = e.changedTouches[0].clientY
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    // 蒙版 touchend 事件：当触点离开触控平面时触发touchend事件.
+    moveEnd (e) {
+      this.setOffsetY(0)
+      this.firstOffsetY = 0
+    },
+    // 当鼠标指针移动到元素上方，并按下鼠标按键时，会发生 mousedown 事件
+    // 与 click 事件不同，mousedown 事件仅需要按键被按下，而不需要松开即可发生。
+    onMouseEnter (e) {
+      this.mouseMove = 1
+      this.mouseStartTime = e.timeStamp
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    // mousemove 事件会在鼠标指针移动时发生
+    onMouseMove (e) {
+      if (this.mouseMove === 1) {
+        this.mouseMove = 2
+      } else if (this.mouseMove === 2) {
+        let offsetY = 0
+        if (this.firstOffsetY) {
+          offsetY = e.clientY - this.firstOffsetY
+          this.setOffsetY(offsetY)
+        } else {
+          this.firstOffsetY = e.clientY
+        }
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    // 当在元素上放松鼠标按钮时，会发生 mouseup 事件。
+    onMouseEnd (e) {
+      if (this.mouseMove === 2) {
+        this.setOffsetY(0)
+        this.firstOffsetY = 0
+        this.mouseMove = 3
+      }
+      this.mouseEndTime = e.timeStamp
+      const time = this.mouseEndTime - this.mouseStartTime
+      if (time < 200) {
+        this.mouseMove = 1
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    // 蒙版点击事件 click
+    onMaskClick (e) {
+      if (this.mouseMove === 2) {
+      } else if (this.mouseMove === 1 || this.mouseMove === 4) {
+        const offsetX = e.offsetX
+        const width = window.innerWidth
+        if (offsetX > 0 && offsetX < width * 0.3) {
+          this.prevPage()
+        } else if (offsetX > 0 && offsetX > width * 0.7) {
+          this.nextPage()
+        } else {
+          this.toggleMenuVisible()
+        }
+      }
+      this.mouseMove = 4
+    },
     // 上一页
     prevPage () {
       if (this.rendition) {
         this.rendition.prev()
+        this.refreshLocation()
       }
       this.hideMenuVisible()
     },
@@ -33,56 +119,36 @@ export default {
     nextPage () {
       if (this.rendition) {
         this.rendition.next()
+        this.refreshLocation()
       }
       this.hideMenuVisible()
-    },
-    // 显示/隐藏 头部和设置菜单
-    toggleTitleAndMenu () {
-      if (this.menuVisible) {
-        this.setSettingVisible(-1) // 隐藏阅读器设置面板（-1:不显示，0:字号，1:主题，2:进度，3:目录）
-        this.setFontFamilyVisible(false) // 隐藏字体设置面板
-      }
-      this.setMenuVisible(!this.menuVisible) // 设置阅读器设置菜单的 显示/隐藏
-    },
-    // 隐藏阅读器设置菜单
-    hideMenuVisible () {
-      this.setMenuVisible(false) // 隐藏阅读器设置菜单
-      this.setSettingVisible(-1) // 隐藏阅读器设置面板（-1:不显示，0:字号，1:主题，2:进度，3:目录）
-      this.setFontFamilyVisible(false) // 隐藏字体设置面板
     },
     // 初始化字体大小
     initFontSize () {
       let fontSize = getFontSize(this.fileName) // 获取对应电子书缓存中的字体大小
       if (!fontSize) {
+        fontSize = 16
         saveFontSize(this.fileName, this.defaultFontSize) // 缓存对应电子书的默认字体大小，默认为 16
-      } else {
-        this.rendition.themes.fontSize(fontSize) // 设置阅读器字体大小
-        this.setDefaultFontSize(fontSize)
       }
+      return fontSize
     },
     // 初始化字体
     initFontFamily () {
       let font = getFontFamily(this.fileName) // 获取对应电子书缓存中的字体
       if (!font) {
-        saveFontFamily(this.fileName, this.defaultFontFamily) // 缓存对应电子书的默认字体
-      } else {
-        this.rendition.themes.font(font) // 设置阅读器字体
-        this.setDefaultFontFamily(font)
+        font = 'Default'
+        saveFontFamily(this.fileName, font)
       }
+      return font
     },
     // 初始化主题
     initTheme () {
-      let defaultTheme = getTheme(this.fileName) // 获取对应电子书缓存中主题
+      let defaultTheme = getTheme(this.fileName)
       if (!defaultTheme) {
-        defaultTheme = this.themeList[0].name // 默认主题为主题列表中的第一个
+        defaultTheme = this.themeList[0].name
         saveTheme(this.fileName, defaultTheme)
       }
-      this.setDefaultTheme(defaultTheme) // 设置全局样式
-      this.setGlobalTheme(defaultTheme) // 设置全局样式
-      this.themeList.forEach(theme => {
-        this.rendition.themes.register(theme.name, theme.style) // 注册主题
-      })
-      this.rendition.themes.select(defaultTheme) // 设置阅读器主题为默认主题
+      return defaultTheme
     },
     // 初始化Rendition对象
     initRendition () {
@@ -93,13 +159,23 @@ export default {
         height: innerHeight,
         method: 'default'
       })
-      const location = getLocation(this.fileName) // 获取对应电子书缓存的位置
-      // 渲染电子书
-      this.display(location, () => {
-        this.initTheme() // 初始化主题
-        this.initFontSize() // 初始化字体大小
-        this.initFontFamily() // 初始化字体
-        this.refreshLocation() // 更新电子书位置
+      Promise.all([
+        this.setDefaultTheme(this.initTheme()), // 初始化主题，并设置默认主题
+        this.setDefaultFontSize(this.initFontSize()), // 初始化字体大小，并设置默认字体大小
+        this.setDefaultFontFamily(this.initFontFamily()) // 初始化字体，并设置默认字体
+      ]).then(() => {
+        // this.refreshLocation() // 更新电子书位置
+        this.switchTheme()
+        if (this.$route.query.navigation) {
+          this.display(this.$route.query.navigation)
+        } else {
+          const location = getLocation(this.fileName) // 获取对应电子书缓存的位置
+          if (location) {
+            this.display(location)
+          } else {
+            this.display()
+          }
+        }
       })
       this.rendition.hooks.content.register(contents => {
         // addStylesheet：将样式表添加到文档（document）头部
@@ -126,10 +202,50 @@ export default {
         } else if (time < 500 && offsetX < -40) {
           this.nextPage() // 下一页
         } else {
-          this.toggleTitleAndMenu() // 显示/隐藏 头部和设置菜单栏
+          this.toggleMenuVisible() // 显示/隐藏 头部和设置菜单栏
         }
         event.preventDefault() // 取消事件的默认动作
         event.stopPropagation() // 阻止捕获和冒泡阶段中当前事件的进一步传播
+      })
+    },
+    // 解析电子书内容
+    parseBook () {
+      // this.book.loaded.cover -- 获取封面加载信息
+      this.book.loaded.cover.then(cover => {
+        // archive - 从 Epub数据存档中 解压缩请求文件
+        // createUrl - 创建一个url
+        this.book.archive.createUrl(cover).then(url => {
+          this.setCover(url) // 设置电子书封面
+        })
+      })
+      // this.book.loaded.metadata -- 获取标题和作者信息
+      this.book.loaded.metadata.then(metadata => {
+        this.setMetadata(metadata)
+      })
+      // this.book.loaded.navigation -- 获取导航信息
+      this.book.loaded.navigation.then(nav => {
+        console.log('电子书目录：', nav)
+        // 使用递归，将层级目录扁平化
+        const navItem = (function flatten (arr) {
+          return [].concat(...arr.map(v => [v, ...flatten(v.subitems)]))
+        })(nav.toc) // nav.toc - 一级目录数组，一级目录下子目录数组为 subitems。 --- 层级目录
+        // 划分层级：二级目录中的 parent 对应 一级目录中的 id，以此类推
+        function find (item, v = 0) {
+          const parent = navItem.filter(it => it.id === item.parent)[0]
+          return !item.parent ? v : (parent ? find(parent, ++v) : v)
+        }
+        navItem.forEach(item => {
+          item.level = find(item)
+          item.total = 0
+          item.pagelist = []
+          if (item.href.match(/^(.*)\.html$/)) {
+            item.idhref = item.href.match(/^(.*)\.html$/)[1]
+          } else if (item.href.match(/^(.*)\.xhtml$/)) {
+            item.idhref = item.href.match(/^(.*)\.xhtml$/)[1]
+          }
+        })
+        this.setNavigation(navItem)
+        this.setIsPaginating(false)
       })
     },
     // 初始化 Epub
@@ -137,8 +253,10 @@ export default {
       const url = `${process.env.VUE_APP_EPUB_URL}/${this.fileName}.epub`
       this.book = new Epub(url) // 生成Book对象
       this.setCurrentBook(this.book) // vuex 设置全局Book对象
+      this.setIsPaginating(true)
       this.initRendition() // 初始化Rendition对象
       this.initGesture() // 初始化手势
+      this.parseBook() // 解析电子书内容
       // Book对象的钩子函数 ready
       this.book.ready.then(() => {
         // 分页：一页显示文字数
@@ -154,4 +272,18 @@ export default {
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   @import "../../assets/styles/global.scss";
+
+  .ebook-reader {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    .ebook-reader-mask {
+      position: absolute;
+      z-index: 150;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
 </style>

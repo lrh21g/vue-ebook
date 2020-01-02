@@ -1,5 +1,6 @@
 <template>
-  <div class="ebook">
+  <div class="ebook"  ref="ebookView">
+    <ebook-bookmark></ebook-bookmark>
     <ebook-title></ebook-title>
     <ebook-reader></ebook-reader>
     <ebook-menu></ebook-menu>
@@ -10,6 +11,7 @@
 import EbookReader from '../../components/ebook/EbookReader'
 import EbookTitle from '../../components/ebook/EbookTitle'
 import EbookMenu from '../../components/ebook/EbookMenu'
+import EbookBookmark from '../../components/ebook/EbookBookmark'
 import { ebookMixin } from '@/utils/mixin'
 import { getReadTime, saveReadTime } from '../../utils/localStorage'
 
@@ -18,9 +20,33 @@ export default {
   components: {
     EbookReader,
     EbookTitle,
-    EbookMenu
+    EbookMenu,
+    EbookBookmark
+  },
+  watch: {
+    offsetY (v) {
+      if (this.isPaginating !== null && this.isPaginating === false && !this.menuVisible) {
+        if (v === 0) {
+          this.restore()
+        } else if (v > 0) {
+          this.move(v)
+        }
+      }
+    }
   },
   methods: {
+    // 还原位置
+    restore () {
+      this.$refs.ebookView.style.top = 0
+      this.$refs.ebookView.style.transition = 'all .2s linear'
+      setTimeout(() => {
+        this.$refs.ebookView.style.transition = ''
+      }, 200)
+    },
+    // 移动位置
+    move (offsetY) {
+      this.$refs.ebookView.style.top = offsetY + 'px'
+    },
     // 开始计算阅读时间
     startLoopReadTime () {
       let readTime = getReadTime(name) // 获取对应电子书缓存的阅读时间
