@@ -52,11 +52,16 @@ export default {
       this.setOffsetY(0)
       this.firstOffsetY = 0
     },
+    // mouse事件标识：
+    // >>> 1 - 鼠标进入
+    // >>> 2 - 鼠标进入后的移动
+    // >>> 3 - 鼠标从移动状态松手
+    // >>> 4 - 鼠标还原
     // 当鼠标指针移动到元素上方，并按下鼠标按键时，会发生 mousedown 事件
     // 与 click 事件不同，mousedown 事件仅需要按键被按下，而不需要松开即可发生。
     onMouseEnter (e) {
       this.mouseMove = 1
-      this.mouseStartTime = e.timeStamp
+      this.mouseStartTime = e.timeStamp // 用于辅助判断鼠标事件
       e.preventDefault()
       e.stopPropagation()
     },
@@ -262,7 +267,27 @@ export default {
         // 分页：一页显示文字数
         return this.book.locations.generate(750 * (window.innerWidth / 375) * (getFontSize(this.fileName) / 16))
       }).then(locations => {
+        locations.forEach(location => {
+          const loc = location.match(/\[(.*)\]!/)[1]
+          console.log(loc)
+          this.navigation.forEach(item => {
+            if (item.idhref && item.idhref.indexOf(loc) >= 0) {
+              item.pagelist.push(location)
+            }
+          })
+          let currentPage = 1
+          this.navigation.forEach((item, index) => {
+            if (index === 0) {
+              item.page = 1
+            } else {
+              item.page = currentPage
+            }
+            currentPage += item.pagelist.length + 1
+          })
+        })
+        this.setPagelist(locations)
         this.setBookAvailable(true) // 设置进度条为可以滑动
+        this.setIsPaginating(false)
         this.refreshLocation() // 更新电子书位置
       })
     }

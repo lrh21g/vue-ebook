@@ -218,6 +218,15 @@ export const ebookMixin = {
         this.setSection(currentLocation.start.index) // 设置章节
         const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi) // 获取cif所在EpubCFI中的百分比
         this.setProgress(Math.floor(progress * 100)) // 设置阅读进度
+        if (this.pagelist) {
+          if (currentLocation.start.location <= 0) {
+            this.setPaginate('')
+          } else {
+            this.setPaginate(currentLocation.start.location + ' / ' + this.pagelist.length)
+          }
+        } else {
+          this.setPaginate('')
+        }
         const cfistart = currentLocation.start.cfi // 获取电子书位置的开始cfi
         const bookmark = Storage.getBookmark(this.fileName) // 获取对应电子书缓存中的书签
         // 设置是否显示书签标识

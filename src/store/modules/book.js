@@ -12,13 +12,13 @@ const book = {
     bookAvailable: false, // 电子书进度条是否禁用  false:禁用
     progress: 0, // 阅读进度
     section: 0, // 章节
-    isPaginating: true,
+    isPaginating: true, // 是否正在加载分页信息中
     currentBook: null, // new Epub() 全局对象
     navigation: null, // 目录导航
     cover: null, // 电子书封面
     metadata: null, // 电子书标题和作者信息信息
-    paginate: '',
-    pagelist: null,
+    paginate: '', // 分页信息 - 页数标识,如：44/1560
+    pagelist: null, // 所有分页信息列表
     offsetY: 0, // 纵向Y轴偏移量
     isBookmark: null, // 当前页是否为书签页，true为显示书签标识，false为不显示
     speakingIconBottom: realPx(58)
