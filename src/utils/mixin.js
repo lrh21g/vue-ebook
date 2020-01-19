@@ -1,5 +1,5 @@
 import { mapGetters, mapActions } from 'vuex'
-import { FONT_SIZE_LIST, FONT_FAMILY, themeList, getReadTimeByMinute } from './book'
+import { FONT_SIZE_LIST, FONT_FAMILY, themeList, getReadTimeByMinute, showBookDetail } from './book'
 import { addCss, removeAllCss } from './utils'
 import * as Storage from './localStorage'
 
@@ -244,6 +244,14 @@ export const ebookMixin = {
     },
     getReadTime () {
       return this.$t('book.haveRead').replace('$1', getReadTimeByMinute(this.fileName))
+    }
+  }
+}
+
+export const ebookHome = {
+  methods: {
+    showBookDetail (item) {
+      showBookDetail(this, item)
     }
   }
 }

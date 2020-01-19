@@ -34,3 +34,21 @@ export function removeAllCss () {
   removeCss(`${process.env.VUE_APP_RES_URL}/theme/theme_gold.css`)
   removeCss(`${process.env.VUE_APP_RES_URL}/theme/theme_night.css`)
 }
+
+export function os () {
+  const ua = navigator.userAgent
+  const isWindowsPhone = /(?:Windows Phone)/.test(ua)
+  const isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone
+  const isAndroid = /(?:Android)/.test(ua)
+  const isFireFox = /(?:Firefox)/.test(ua)
+  // isChrome = /(?:Chrome|CriOS)/.test(ua)
+  const isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (isFireFox && /(?:Tablet)/.test(ua))
+  const isPhone = /(?:iPhone)/.test(ua) && !isTablet
+  const isPc = !isPhone && !isAndroid && !isSymbian
+  return {
+    isTablet: isTablet,
+    isPhone: isPhone,
+    isAndroid: isAndroid,
+    isPc: isPc
+  }
+}
