@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    redirect: '/ebook'
+    redirect: '/book-store'
   },
   {
     path: '/ebook',
@@ -19,7 +19,7 @@ const routes = [
   {
     path: '/book-store',
     component: resolve => require(['@/views/store/index.vue'], resolve),
-    redirect: '/book-store/home',
+    redirect: '/book-store/shelf',
     children: [
       {
         path: '/book-store/shelf',

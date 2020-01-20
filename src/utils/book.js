@@ -254,6 +254,7 @@ export function addToShelf (book) {
   })
   appendAddToBookList(bookList)
   setLocalStorage(BOOK_SHELF_KEY, bookList)
+  console.log('addToShelf bookList:', bookList)
 }
 
 export function appendAddToBookList (bookList) {
@@ -326,6 +327,7 @@ export function removeBookCache (fileName) {
   })
 }
 
+// 切换语言
 export function switchLocale (vue) {
   if (vue.$i18n.locale === 'en') {
     vue.$i18n.locale = 'cn'

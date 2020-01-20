@@ -1,4 +1,4 @@
-import localForage from 'localforage'
+import localForage from 'localforage' // 对indexedDB进行操作的开源库
 
 export function setLocalForage (key, data, cb, cb2) {
   localForage.setItem(key, data).then((value) => {
@@ -30,6 +30,7 @@ export function clearLocalForage (cb, cb2) {
   })
 }
 
+// 遍历indexedDB中有多少个key
 export function lengthLocalForage (cb) {
   localForage.length().then(
     numberOfKeys => {
@@ -40,6 +41,7 @@ export function lengthLocalForage (cb) {
   })
 }
 
+// 获取indexedDB中有多少个key，其中key，value是什么
 export function iteratorLocalForage () {
   localForage.iterate(function (value, key, iterationNumber) {
     console.log([key, value])
@@ -50,6 +52,7 @@ export function iteratorLocalForage () {
   })
 }
 
+// 判断是否支持 indexedDB
 export function support () {
   const indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || null
   if (indexedDB) {

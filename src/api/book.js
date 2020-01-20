@@ -64,6 +64,11 @@ export function downloadMp3 (url, cb, cb2) {
   })
 }
 
+// item: 缓存书籍信息
+// onSuccess: 缓存成功回调
+// onFailed: 缓存失败回调
+// onError: 出现错误回调
+// onProgress: 缓存进度回调
 export function download (item, onSuccess, onFailed, onError, onProgress) {
   axios.create({
     baseURL: process.env.VUE_APP_EPUB_URL,
@@ -71,6 +76,7 @@ export function download (item, onSuccess, onFailed, onError, onProgress) {
     responseType: 'blob',
     timeout: 180 * 1000,
     onDownloadProgress: progressEvent => {
+      // 下载进度回调函数
       if (onProgress) onProgress(progressEvent)
     }
   }).get(`${getCategoryName(item.category)}/${item.fileName}.epub`)
