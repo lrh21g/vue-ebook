@@ -280,7 +280,7 @@ export default {
         detail({
           fileName: fileName
         }).then(response => {
-          if (response.status === 200 && response.data.error_code === 0 && response.data.data) {
+          if (response.status === 200 && response.data.code === 0 && response.data.data) {
             const data = response.data.data
             console.log('书籍详情信息 data', data)
             this.bookItem = data

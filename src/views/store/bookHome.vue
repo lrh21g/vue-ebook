@@ -35,7 +35,7 @@ import Recommend from '@/components/home/recommend'
 import Featured from '@/components/home/featured'
 import CategoryBook from '@/components/home/categoryBook'
 import Category from '@/components/home/category'
-import { home2 } from '@/api/book'
+import { home } from '@/api/book'
 import { realPx } from '@/utils/utils'
 import { getLocalStorage, setLocalStorage, getHome, saveHome } from '@/utils/localStorage'
 
@@ -69,13 +69,13 @@ export default {
     }
   },
   mounted () {
-    const home = getHome()
-    if (home) {
+    const homeFromLocalStorage = getHome()
+    if (homeFromLocalStorage) {
       console.log('书城主页，使用缓存')
-      this.parseHomeData(home)
+      this.parseHomeData(homeFromLocalStorage)
     } else {
       console.log('书城主页，请求数据')
-      home2().then(response => {
+      home().then(response => {
         if (response.status === 200 && response.data) {
           this.parseHomeData(response.data)
           saveHome(response.data)
