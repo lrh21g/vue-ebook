@@ -52,7 +52,7 @@
         </div>
       </div>
       <!-- 书籍试读预览 -->
-      <div class="book-detail-content-wrapper">
+      <div class="book-detail-content-wrapper" v-show="this.displayed">
         <div class="book-detail-content-title">{{$t('detail.trial')}}</div>
         <div class="book-detail-content-list-wrapper">
           <div class="loading-text-wrapper" v-if="!this.displayed">
@@ -224,7 +224,7 @@ export default {
       getLocalForage(this.bookItem.fileName, (err, value) => {
         if (!err && value instanceof Blob) {
           this.$router.push({
-            path: `/ebook/${this.bookItem.fileName}`,
+            path: `/ebook/${this.categoryText}|${this.bookItem.fileName}`,
             query: {
               navigation: item.href
             }
@@ -232,7 +232,7 @@ export default {
         } else {
           // this.showToast(this.$t('shelf.downloadFirst'))
           this.$router.push({
-            path: `/ebook/${this.bookItem.fileName}`,
+            path: `/ebook/${this.categoryText}|${this.bookItem.fileName}`,
             query: {
               navigation: item.href,
               opf: this.opf
@@ -353,9 +353,9 @@ export default {
         }
         console.log('书籍预览 rendition', this.rendition)
         if (!location) {
-          return this.rendition.display()
+          return this.book.rendition.display()
         } else {
-          return this.rendition.display(location)
+          return this.book.rendition.display(location)
         }
       }
     },
