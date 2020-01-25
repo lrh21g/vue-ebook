@@ -27,6 +27,8 @@
     <ebook-setting-theme></ebook-setting-theme>
     <!-- 进度设置 -->
     <ebook-setting-progress></ebook-setting-progress>
+    <!-- 听书 -->
+    <ebook-speaking-icon></ebook-speaking-icon>
     <!-- 目录 -->
     <ebook-slide></ebook-slide>
   </div>
@@ -38,6 +40,7 @@ import EbookSettingFont from './EbookSettingFont'
 import EbookSettingFontPopup from './EbookSettingFontPopup'
 import EbookSettingTheme from './EbookSettingTheme'
 import EbookSettingProgress from './EbookSettingProgress'
+import EbookSpeakingIcon from './EbookSpeakingIcon'
 import EbookSlide from './EbookSlide'
 
 export default {
@@ -47,6 +50,7 @@ export default {
     EbookSettingFontPopup,
     EbookSettingTheme,
     EbookSettingProgress,
+    EbookSpeakingIcon,
     EbookSlide
   }
 }

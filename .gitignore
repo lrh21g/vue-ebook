@@ -2,6 +2,7 @@
 node_modules
 /dist
 /resource
+/server/dbBaseConfig.js
 
 # local env files
 .env.local

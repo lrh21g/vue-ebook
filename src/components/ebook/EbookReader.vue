@@ -20,19 +20,39 @@
 <script>
 import Epub from 'epubjs'
 import { ebookMixin } from '@/utils/mixin'
-import { getFontFamily, saveFontFamily, saveFontSize, getFontSize, getTheme, saveTheme, getLocation } from '../../utils/localStorage'
+import { getFontFamily, saveFontFamily, saveFontSize, getFontSize, getTheme, saveTheme, getLocation, saveMetadata } from '../../utils/localStorage'
+import { getLocalForage } from '../../utils/localForage'
 
 global.epub = Epub
 
 export default {
   mixins: [ebookMixin],
   mounted () {
-    // 路由参数 fileName 格式为：History|2017_Book_InterdisciplinaryPerspectivesO
-    // 设置 fileName 为 History/2017_Book_InterdisciplinaryPerspectivesO
-    this.setFileName(this.$route.params.fileName.split('|').join('/'))
-      .then(() => {
-        this.initEpub() // 初始化 Epub
-      })
+    if (this.$route.params.fileName.indexOf('|') > 0) {
+      // 路由参数 fileName 格式为：History|2017_Book_InterdisciplinaryPerspectivesO
+      // 设置 fileName 为 History/2017_Book_InterdisciplinaryPerspectivesO
+      this.setFileName(this.$route.params.fileName.split('|').join('/'))
+        .then(() => {
+          this.initEpub(`${process.env.VUE_APP_EPUB_URL}/${this.fileName}.epub`)
+          this.isOnline = false
+        })
+    } else {
+      this.setFileName(this.$route.params.fileName)
+        .then(() => {
+          getLocalForage(this.fileName, (err, blob) => {
+            if (!err) {
+              if (blob) {
+                this.isOnline = false
+                this.initEpub(blob)
+              } else {
+                this.isOnline = true
+                const opf = this.$route.query.opf
+                if (opf) this.initEpub(opf)
+              }
+            }
+          })
+        })
+    }
   },
   methods: {
     // 蒙版 touchmove 事件：当触点在触控平面上移动时触发touchmove事件
@@ -226,6 +246,7 @@ export default {
       // this.book.loaded.metadata -- 获取标题和作者信息
       this.book.loaded.metadata.then(metadata => {
         this.setMetadata(metadata)
+        saveMetadata(this.fileName, metadata)
       })
       // this.book.loaded.navigation -- 获取导航信息
       this.book.loaded.navigation.then(nav => {
@@ -250,18 +271,7 @@ export default {
           }
         })
         this.setNavigation(navItem)
-        this.setIsPaginating(false)
       })
-    },
-    // 初始化 Epub
-    initEpub () {
-      const url = `${process.env.VUE_APP_EPUB_URL}/${this.fileName}.epub`
-      this.book = new Epub(url) // 生成Book对象
-      this.setCurrentBook(this.book) // vuex 设置全局Book对象
-      this.setIsPaginating(true)
-      this.initRendition() // 初始化Rendition对象
-      this.initGesture() // 初始化手势
-      this.parseBook() // 解析电子书内容
       // Book对象的钩子函数 ready
       this.book.ready.then(() => {
         // 分页：一页显示文字数
@@ -290,6 +300,16 @@ export default {
         this.setIsPaginating(false)
         this.refreshLocation() // 更新电子书位置
       })
+    },
+    // 初始化 Epub
+    initEpub (target) {
+      this.book = new Epub(target) // 生成Book对象
+      this.setCurrentBook(this.book) // vuex 设置全局Book对象
+      this.setIsPaginating(true)
+      this.setPaginate(this.$t('book.paginating'))
+      this.initRendition() // 初始化Rendition对象
+      this.initGesture() // 初始化手势
+      this.parseBook() // 解析电子书内容
     }
   }
 }

@@ -1,19 +1,21 @@
+const dbBaseConfig = require('./dbBaseConfig');
+
 const env = 'dev';
 
 let dbConfig = {};
 let resUrl, mp3FilePath;
 if (env === 'dev') {
-  dbConfig.host = 'localhost';
-  dbConfig.user = 'root';
-  dbConfig.password = 'xxxxxxxxx';
-  resUrl = 'http://192.168.1.105:9001/book/res';
-  mp3FilePath = '/Users/sam/Desktop/resource/mp3'
+  dbConfig.host = dbBaseConfig.devDbConfig.host;
+  dbConfig.user = dbBaseConfig.devDbConfig.user;
+  dbConfig.password = dbBaseConfig.devDbConfig.password;
+  resUrl = dbBaseConfig.devResUrl;
+  mp3FilePath = dbBaseConfig.devMp3FilePath;
 } else if (env === 'pord') {
-  dbConfig.host = 'xxxx';
-  dbConfig.user = 'xxxx';
-  dbConfig.password = 'xxxx';
-  resUrl = 'xxxx';
-  mp3FilePath = '/root/nginx/upload/mp3';
+  dbConfig.host = dbBaseConfig.prodDbConfig.host;
+  dbConfig.user = dbBaseConfig.prodDbConfig.user;
+  dbConfig.password = dbBaseConfig.prodDbConfig.password;
+  resUrl = dbBaseConfig.devResUrl;
+  mp3FilePath = dbBaseConfig.devMp3FilePath;
 }
 
 // 分类标题
