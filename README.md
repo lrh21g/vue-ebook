@@ -1,18 +1,10 @@
 # vue-ebook
 
-## 1. 项目描述
+## 项目描述
 
-本项目仿照《微信读书》进行开发。主要包括：书城页、书架页、听书页、书籍详情页以及阅读器页等。
+本项目仿照《微信读书》进行开发，使用Vue+epubjs开发客户端，Express+MySQL开发服务端。主要包括：书城页、书架页、听书页、书籍详情页以及阅读器页等。
 
-本项目采用技术点有：
-
-+ Vue全家桶（Vue mixins混入、Vue slot插槽、Vue动态组件+异步组件、Vue组件API化、Vuex状态管理+模块化、Vue动态路由+路由钩子）
-+ Vue CLI 3.0（环境变量、自定义配置、项目发布）
-+ 算法与实际运用（目录+全文搜索+书架算法、epubjs深度应用、axios 请求+文件下载、async+await应用、Audio播放器、科大讯飞语音合成API）
-+ 交互动画（Vue transition过渡、Vue transition-group过渡、Vue交互touch+mouse事件、CSS3过渡和帧动画、css 预处理）
-+ Vue扩展（Vue国际化、Vue解决跨越请求、Vue全局主题切换、LocalStorage+IndexedDB）
-
-## 2. 如何运行
+## 如何运行
 
 + 克隆代码：`https://github.com/VueToLRH/vue-ebook.git`
 + 安装依赖：`npm install`
@@ -21,9 +13,27 @@
 + 打包：`npm run build`
 + ESlint检查：`npm run lint`
 
-## 3. Nginx
+## Nginx
 
 + 配置注释
+
+  ``` nginx
+  server {
+    listen 9001; # 站点监听端口
+    server_name resource; # 站点访问域名
+    root E:/WorkSpace/MyWorkSpace/Vue/vue-ebook/resource; # 指定目录所在路径
+    autoindex on; # 开启目录浏览
+    # location用来匹配同一域名下多个URI的访问规则
+    # 比如动态资源如何跳转，静态资源如何跳转等
+    # location后面跟着的/代表匹配规则
+    location / {
+      # 重新定义或者添加发往后端服务器的请求头
+      add_header Access-Control-Allow-Origin *;
+    }
+    add_header Cache-Control "no-cache, must-revalidate";
+  }
+  ```
+
 + 常用命令
   
   `start nginx`: 启动 Nginx 服务
@@ -34,8 +44,21 @@
 
   `nginx -s quit`: 退出 Nginx
 
-## 4. 其他
+## 其他
 
 + 字体css样式
-  
+
   生成样式网址：`font.googleapis.com`
+
+## 项目展
+
+![app01](./readme/images/app01.png)
+![app02](./readme/images/app02.png)
+![app03](./readme/images/app03.png)
+![app04](./readme/images/app04.png)
+![app05](./readme/images/app05.png)
+![app06](./readme/images/app06.png)
+![app07](./readme/images/app07.png)
+![app08](./readme/images/app08.png)
+![app09](./readme/images/app09.png)
+![app10](./readme/images/app10.png)
