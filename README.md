@@ -10,6 +10,7 @@
 + 安装依赖：`npm install`
 + 客户端运行：`npm run serve`
 + 服务端运行：`node .\server\bin\www`
++ 启动Nginx：切换至Nginx安装目录 -> `start nginx`
 + 打包：`npm run build`
 + ESlint检查：`npm run lint`
 
