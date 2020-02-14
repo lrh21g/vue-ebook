@@ -16,6 +16,7 @@
 
 ## 使用插件/模块
 
++ book数据库文件：[book.sql](./public/book.sql)
 + [epubjs](https://github.com/futurepress/epub.js#readme)：基于JavaScript的ePub引擎，解决ePub电子书的解析、渲染、定位等。[epubjs文档](http://epubjs.org/documentation/0.3/)
 + [cors](https://github.com/expressjs/cors#readme)：Node跨域模块。
 + [localforage](https://github.com/localForage/localForage)：可用于离线数据存储的库。
