@@ -14,9 +14,12 @@
 
 ## 2. 如何运行
 
-+ 克隆代码： `git clone https://gitee.com/VueToLRH/vue-ebook.git`
-+ 安装相关依赖：`npm install` (或使用淘宝镜像：`cnpm install`)
-+ 运行项目：`npm run serve`
++ 克隆代码：`https://github.com/VueToLRH/vue-ebook.git`
++ 安装依赖：`npm install`
++ 客户端运行：`npm run serve`
++ 服务端运行：`node .\server\bin\www`
++ 打包：`npm run build`
++ ESlint检查：`npm run lint`
 
 ## 3. Nginx
 
