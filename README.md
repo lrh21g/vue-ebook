@@ -13,6 +13,33 @@
 + 打包：`npm run build`
 + ESlint检查：`npm run lint`
 
+## 使用插件/模块
+
++ [epubjs](https://github.com/futurepress/epub.js#readme)：基于JavaScript的ePub引擎，解决ePub电子书的解析、渲染、定位等。[epubjs文档](http://epubjs.org/documentation/0.3/)
++ [cors](https://github.com/expressjs/cors#readme)：Node跨域模块。
++ [localforage](https://github.com/localForage/localForage)：可用于离线数据存储的库。
+
+## dbBaseConfig.js文件配置(server/dbBaseConfig.js)
+
+``` javascript
+module.exports = {
+  devDbConfig: {
+    host: 'localhost',
+    user: 'xxxx',
+    password: 'xxxxxxx'
+  },
+  devResUrl: 'http://192.168.1.137:9001/book/res',
+  devMp3FilePath: '/Users/sam/Desktop/resource/mp3',
+  prodDbConfig: {
+    host: 'localhost',
+    user: 'xxxx',
+    password: 'xxxxxx'
+  },
+  prodResUrl: 'http://192.168.1.137:9001/book/res',
+  prodMp3FilePath: '/root/nginx/upload/mp3',
+}
+```
+
 ## Nginx
 
 + 配置注释
